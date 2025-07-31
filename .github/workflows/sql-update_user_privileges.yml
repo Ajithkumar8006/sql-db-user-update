@@ -3,7 +3,7 @@ name: Build and Run Cloud Run Job
 on:
   push:
     branches:
-      - main  # or your preferred branch
+      - main
 
 jobs:
   build-and-run:
