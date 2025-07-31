@@ -1,0 +1,34 @@
+name: Build and Run Cloud Run Job
+
+on:
+  push:
+    branches:
+      - main  # or your preferred branch
+
+jobs:
+  build-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          version: 'latest'
+          project_id: apigee-test-0002-demo
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker
+
+      - name: Build and Push Image to GCR
+        run: |
+          gcloud builds submit \
+            --tag gcr.io/apigee-test-0002-demo/sql-update-user-privileges
+
+      - name: Execute Cloud Run Job
+        run: |
+          gcloud run jobs execute sql-update-user-privileges-job \
+            --region us-central1
