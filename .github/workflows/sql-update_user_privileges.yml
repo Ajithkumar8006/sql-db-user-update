@@ -2,23 +2,25 @@ name: Build and Run Cloud Run Job
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]  # or your target branch
 
 jobs:
   build-and-run:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Cloud SDK
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+      - name: Set up gcloud CLI
         uses: google-github-actions/setup-gcloud@v1
         with:
-          version: 'latest'
           project_id: apigee-test-0002-demo
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
 
       - name: Configure Docker for GCR
         run: gcloud auth configure-docker
@@ -26,9 +28,9 @@ jobs:
       - name: Build and Push Image to GCR
         run: |
           gcloud builds submit \
-            --tag gcr.io/apigee-test-0002-demo/sql-update-user-privileges
+            --tag gcr.io/apigee-test-0002-demo/update-user-privileges
 
       - name: Execute Cloud Run Job
         run: |
-          gcloud run jobs execute sql-update-user-privileges-job \
+          gcloud run jobs execute update-user-privileges-job \
             --region us-central1
