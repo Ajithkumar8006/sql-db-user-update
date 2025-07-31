@@ -28,9 +28,9 @@ jobs:
       - name: Build and Push Image to GCR
         run: |
           gcloud builds submit \
-            --tag gcr.io/apigee-test-0002-demo/update-user-privileges
+            --tag gcr.io/apigee-test-0002-demo/sql-update-user-privileges
 
       - name: Execute Cloud Run Job
         run: |
-          gcloud run jobs execute update-user-privileges-job \
+          gcloud run jobs execute sql-update-user-privileges-job \
             --region us-central1
