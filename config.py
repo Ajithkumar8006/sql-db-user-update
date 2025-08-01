@@ -1,6 +1,6 @@
 def read_secret(path):
     try:
-        with open(path) as f:https://github.com/Ajithkumar8006/sql-db-user-update/blob/main/config.py
+        with open(path) as f:
             return f.read().strip()
     except Exception as e:
         raise RuntimeError(f"❌ Failed to read secret from {path}: {e}")
@@ -18,4 +18,4 @@ DB_CONFIG = {
 }
 
 TARGET_USER = 'appuser'
-PRIVILEGES = ['INSERT','SELECT','UPDATE']
+PRIVILEGES = ['UPDATE']
