@@ -169,3 +169,214 @@ resource "google_project_iam_member" "vpcaccess_user" {
   project = var.project_id
   role    = "roles/vpcaccess.user"
   member  = "serviceAccount:741169614600-compute@developer.gserviceaccount.com"
+}
+
+# Cloud Run job using private IP via VPC connector
+resource "google_cloud_run_v2_job" "sql-update_user_privileges" {
+  name     = "sql-update-user-privileges-job"
+  location = var.region
+
+  template {
+    template {
+      containers {
+        image = "gcr.io/${var.project_id}/sql-update-user-privileges"
+
+        volume_mounts {
+          name       = "client-cert"
+          mount_path = "/secrets/client-cert"
+        }
+
+        volume_mounts {
+          name       = "client-key"
+          mount_path = "/secrets/client-key"
+        }
+
+        volume_mounts {
+          name       = "server-ca"
+          mount_path = "/secrets/server-ca"
+        }
+
+        volume_mounts {
+          name       = "admin-password"
+          mount_path = "/secrets/admin-password"
+        }
+
+        env {
+          name  = "PGSSLCERT"
+          value = "/secrets/client-cert/client-cert.pem"
+        }
+
+        env {
+          name  = "PGSSLKEY"
+          value = "/secrets/client-key/client-key.pem"
+        }
+
+        env {
+          name  = "PGSSLROOTCERT"
+          value = "/secrets/server-ca/server-ca.pem"
+        }
+
+        env {
+          name  = "DB_HOST"
+          value = google_sql_database_instance.postgres_instance.private_ip_address
+        }
+      }
+
+      volumes {
+        name = "client-cert"
+        secret {
+          secret = "pg-client-cert"
+          items {
+            path    = "client-cert.pem"
+            version = "latest"
+          }
+        }
+      }
+
+      volumes {
+        name = "client-key"
+        secret {
+          secret = "pg-client-private-key"
+          items {
+            path    = "client-key.pem"
+            version = "latest"
+          }
+        }
+      }
+
+      volumes {
+        name = "server-ca"
+        secret {
+          secret = "pg-server-ca-cert"
+          items {
+            path    = "server-ca.pem"
+            version = "latest"
+          }
+        }
+      }
+
+      volumes {
+        name = "admin-password"
+        secret {
+          secret = "pg-admin-user-password"
+          items {
+            path    = "pg-admin-user-password"
+            version = "latest"
+          }
+        }
+      }
+
+      vpc_access {
+        connector = google_vpc_access_connector.vpc_connector.id
+        egress    = "ALL_TRAFFIC"
+      }
+
+      service_account = "741169614600-compute@developer.gserviceaccount.com"
+    }
+  }
+}
+
+# Cloud Run job using private IP via VPC connector
+resource "google_cloud_run_v2_job" "sql-db-table-create" {
+  name     = "sql-db-table-create"
+  location = var.region
+
+  template {
+    template {
+      containers {
+        image = "gcr.io/${var.project_id}/sql-db-table-create"
+
+        volume_mounts {
+          name       = "client-cert"
+          mount_path = "/secrets/client-cert"
+        }
+
+        volume_mounts {
+          name       = "client-key"
+          mount_path = "/secrets/client-key"
+        }
+
+        volume_mounts {
+          name       = "server-ca"
+          mount_path = "/secrets/server-ca"
+        }
+
+        volume_mounts {
+          name       = "admin-password"
+          mount_path = "/secrets/admin-password"
+        }
+
+        env {
+          name  = "PGSSLCERT"
+          value = "/secrets/client-cert/client-cert.pem"
+        }
+
+        env {
+          name  = "PGSSLKEY"
+          value = "/secrets/client-key/client-key.pem"
+        }
+
+        env {
+          name  = "PGSSLROOTCERT"
+          value = "/secrets/server-ca/server-ca.pem"
+        }
+
+        env {
+          name  = "DB_HOST"
+          value = google_sql_database_instance.postgres_instance.private_ip_address
+        }
+      }
+
+      volumes {
+        name = "client-cert"
+        secret {
+          secret = "pg-client-cert"
+          items {
+            path    = "client-cert.pem"
+            version = "latest"
+          }
+        }
+      }
+
+      volumes {
+        name = "client-key"
+        secret {
+          secret = "pg-client-private-key"
+          items {
+            path    = "client-key.pem"
+            version = "latest"
+          }
+        }
+      }
+
+      volumes {
+        name = "server-ca"
+        secret {
+          secret = "pg-server-ca-cert"
+          items {
+            path    = "server-ca.pem"
+            version = "latest"
+          }
+        }
+      }
+
+      volumes {
+        name = "admin-password"
+        secret {
+          secret = "pg-admin-user-password"
+          items {
+            path    = "pg-admin-user-password"
+            version = "latest"
+          }
+        }
+      }
+
+      vpc_access {
+        connector = google_vpc_access_connector.vpc_connector.id
+        egress    = "ALL_TRAFFIC"
+      }
+
+      service_account = "741169614600-compute@developer.gserviceaccount.com"
+    }
+  }
+}
