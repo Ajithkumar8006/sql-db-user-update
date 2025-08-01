@@ -1,8 +1,12 @@
 name: Build and Run Cloud Run Job
 
 on:
-  push:
-    branches: [main]  # or your target branch
+  workflow_dispatch:
+    inputs:
+      check_path:
+        description: 'SQL Update User Account Privileges'
+        required: false
+        default: 'your/specific/path/'
 
 jobs:
   build-and-run:
