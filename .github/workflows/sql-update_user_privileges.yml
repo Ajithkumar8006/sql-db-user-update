@@ -6,7 +6,7 @@ on:
       check_path:
         description: 'SQL Update User Account Privileges'
         required: false
-        default: 'your/specific/path/'
+        default: 'config.py'
 
 jobs:
   build-and-run:
