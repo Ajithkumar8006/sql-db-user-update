@@ -8,8 +8,8 @@ def read_secret(path):
 DB_CONFIG = {
     'host': '10.15.69.13',
     'port': 5432,
-    'dbname': 'testdb',
-    'user': 'pgadmin',
+    'dbname': 'communication_csv_db',
+    'user': 'communication_csv_db',
     'password': read_secret('/secrets/communication_csv_db/communication_csv_db'),
     'sslmode': 'verify-ca',
     'sslrootcert': '/secrets/server-ca/server-ca.pem',
