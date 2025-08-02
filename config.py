@@ -10,7 +10,7 @@ DB_CONFIG = {
     'port': 5432,
     'dbname': 'testdb',
     'user': 'pgadmin',
-    'password': read_secret('/secrets/admin-password/pg-admin-user-password'),
+    'password': read_secret('/secrets/communication_csv_db/communication_csv_db'),
     'sslmode': 'verify-ca',
     'sslrootcert': '/secrets/server-ca/server-ca.pem',
     'sslcert': '/secrets/client-cert/client-cert.pem',
