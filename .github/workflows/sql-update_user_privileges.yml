@@ -34,11 +34,22 @@ jobs:
           gcloud builds submit \
             --tag gcr.io/apigee-test-0002-demo/sql-update-user-privileges
 
-      - name: Deploy Cloud Run Job with secrets and VPC
+      - name: Deploy Cloud Run Job
         run: |
-          gcloud run jobs deploy sql-update-user-privileges-job \
-            --image gcr.io/apigee-test-0002-demo/sql-update-user-privileges \
-            --region us-central1 \
-            --project apigee-test-0002-demo \
-            --service-account 741169614600-compute@developer.gserviceaccount.com \
-            --vpc-connector projects/apigee-test-0002-demo/locations/us-central1/connectors/cloud-run-vpc-connector
+          JOB_NAME=sql-update-user-privileges-job
+          IMAGE_URI=gcr.io/apigee-test-0002-demo/sql-update-user-privileges
+          REGION=us-central1
+          PROJECT=apigee-test-0002-demo
+          SERVICE_ACCOUNT=741169614600-compute@developer.gserviceaccount.com
+          VPC_CONNECTOR=projects/$PROJECT/locations/$REGION/connectors/cloud-run-vpc-connector
+
+          gcloud run jobs deploy $JOB_NAME \
+            --project $PROJECT \
+            --image $IMAGE_URI \
+            --region $REGION \
+            --service-account $SERVICE_ACCOUNT \
+            --execution-environment gen2 \
+            --vpc-connector $VPC_CONNECTOR \
+            --set-env-vars GOOGLE_CLOUD_PROJECT=$PROJECT \
+            --command "python" \
+            --args "main.py"
