@@ -53,3 +53,8 @@ jobs:
             --set-env-vars GOOGLE_CLOUD_PROJECT=$PROJECT \
             --command "python" \
             --args "main.py"
+            
+      - name: Execute Cloud Run Job
+        run: |
+          gcloud run jobs execute sql-update-user-privileges-job \
+            --region us-central1
