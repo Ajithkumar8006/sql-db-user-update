@@ -6,7 +6,7 @@ def read_secret(path):
         raise RuntimeError(f"❌ Failed to read secret from {path}: {e}")
 
 DB_CONFIG = {
-    'host': '10.15.69.13',
+    'host': '10.15.69.15',
     'port': 5432,
     'dbname': 'communication_csv_db',
     'user': 'communication_csv_db',
