@@ -52,7 +52,15 @@ jobs:
             --vpc-connector $VPC_CONNECTOR \
             --set-env-vars GOOGLE_CLOUD_PROJECT=$PROJECT \
             --command "python" \
-            --args "main.py"
+            --args "main.py" \
+            --volume name=client-cert,secret=pg-client-cert \
+            --volume name=client-key,secret=pg-client-private-key \
+            --volume name=server-ca,secret=pg-server-ca-cert \
+            --volume name=communication_csv_db,secret=communication_csv_db \
+            --mount-path /secrets/client-cert,name=client-cert \
+            --mount-path /secrets/client-key,name=client-key \
+            --mount-path /secrets/server-ca,name=server-ca \
+            --mount-path /secrets/communication_csv_db,name=communication_csv_db
             
       - name: Execute Cloud Run Job
         run: |
