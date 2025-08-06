@@ -53,15 +53,14 @@ jobs:
             --set-env-vars GOOGLE_CLOUD_PROJECT=$PROJECT \
             --command "python" \
             --args "main.py" \
-            --add-volume name=client-cert,secret=pg-client-cert \
-            --add-volume name=client-key,secret=pg-client-private-key \
-            --add-volume name=server-ca,secret=pg-server-ca-cert \
-            --add-volume name=communication-csv-db,secret=communication_csv_db \
+            --add-volume name=client-cert,type=secret,secret=pg-client-cert \
+            --add-volume name=client-key,type=secret,secret=pg-client-private-key \
+            --add-volume name=server-ca,type=secret,secret=pg-server-ca-cert \
+            --add-volume name=communication-csv-db,type=secret,secret=communication_csv_db \
             --add-volume-mount volume=client-cert,mount-path=/secrets/client-cert \
             --add-volume-mount volume=client-key,mount-path=/secrets/client-key \
             --add-volume-mount volume=server-ca,mount-path=/secrets/server-ca \
             --add-volume-mount volume=communication-csv-db,mount-path=/secrets/communication_csv_db
-
             
       - name: Execute Cloud Run Job
         run: |
