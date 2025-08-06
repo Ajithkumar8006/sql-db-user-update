@@ -40,18 +40,5 @@ jobs:
             --image gcr.io/apigee-test-0002-demo/sql-update-user-privileges \
             --region us-central1 \
             --project apigee-test-0002-demo \
-            --execution-environment gen2 \
             --service-account 741169614600-compute@developer.gserviceaccount.com \
-            --vpc-connector projects/apigee-test-0002-demo/locations/us-central1/connectors/YOUR_VPC_CONNECTOR_NAME \
-            --set-secrets=\
-PGSSLCERT=pg-client-cert:latest,\
-PGSSLKEY=pg-client-private-key:latest,\
-PGSSLROOTCERT=pg-server-ca-cert:latest,\
-PGPASSWORD=pg-app-user-password:latest,\
-COMMUNICATION_CSV_DB=communication_csv_db:latest \
-            --set-env-vars=\
-PGSSLCERT=/secrets/client-cert/client-cert.pem,\
-PGSSLKEY=/secrets/client-key/client-key.pem,\
-PGSSLROOTCERT=/secrets/server-ca/server-ca.pem,\
-PGPASSWORD=/secrets/admin-password/pg-admin-user-password \
-            --args "main.py"
+            --vpc-connector projects/apigee-test-0002-demo/locations/us-central1/connectors/cloud-run-vpc-connector
