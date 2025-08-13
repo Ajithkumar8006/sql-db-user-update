@@ -380,3 +380,13 @@ resource "google_cloud_run_v2_job" "sql-db-table-create" {
     }
   }
 }
+----
+
+ 1018  wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy
+ 1019  ls -l
+ 1020  chmod +x cloud_sql_proxy
+ 1021  curl -o cloud_sql_proxy https://dl.google.com/cloudsql/cloud_sql_proxy.darwin.amd64
+ 1022  chmod +x cloud_sql_proxy
+ 1023  gcloud sql instances describe pg-instance \\n  --project=apigee-test-0002-demo \\n  --format='value(connectionName)'\n
+ 1024  ./cloud_sql_proxy \\n  -instances=apigee-test-0002-demo:us-central1:pg-instance=tcp:5432 \\n  --project=apigee-test-0002-demo\n
+ 1025  ./cloud_sql_proxy \\n  -instances=apigee-test-0002-demo:us-central1:pg-instance=tcp:5432\n
