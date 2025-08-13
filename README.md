@@ -390,3 +390,39 @@ resource "google_cloud_run_v2_job" "sql-db-table-create" {
  1023  gcloud sql instances describe pg-instance \\n  --project=apigee-test-0002-demo \\n  --format='value(connectionName)'\n
  1024  ./cloud_sql_proxy \\n  -instances=apigee-test-0002-demo:us-central1:pg-instance=tcp:5432 \\n  --project=apigee-test-0002-demo\n
  1025  ./cloud_sql_proxy \\n  -instances=apigee-test-0002-demo:us-central1:pg-instance=tcp:5432\n
+
+ ------
+
+
+ Step 1 — Run this inside psql on testdb
+sql
+Copy
+Edit
+GRANT INSERT, SELECT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER
+ON TABLE public.customers TO appuser;
+
+GRANT INSERT, SELECT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER
+ON TABLE public.products TO appuser;
+
+GRANT INSERT, SELECT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER
+ON TABLE public.orders TO appuser;
+
+GRANT INSERT, SELECT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER
+ON TABLE public.order_items TO appuser;
+Step 2 — Also grant on sequences (needed for SERIAL / ID columns)
+sql
+Copy
+Edit
+GRANT USAGE, SELECT, UPDATE ON SEQUENCE public.customers_customer_id_seq TO appuser;
+GRANT USAGE, SELECT, UPDATE ON SEQUENCE public.products_product_id_seq TO appuser;
+GRANT USAGE, SELECT, UPDATE ON SEQUENCE public.orders_order_id_seq TO appuser;
+GRANT USAGE, SELECT, UPDATE ON SEQUENCE public.order_items_order_item_id_seq TO appuser;
+(Adjust sequence names if yours differ — you can check with \ds in psql.)
+
+Step 3 — Verify
+sql
+Copy
+Edit
+SELECT grantee, privilege_type, table_schema, table_name
+FROM information_schema.role_table_grants
+WHERE grantee = 'appuser';
