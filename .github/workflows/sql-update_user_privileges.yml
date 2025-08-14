@@ -39,12 +39,13 @@ jobs:
           SECRET_SSL_KEY=pg-client-private-key
           SECRET_SSL_ROOTCERT=pg-server-ca-cert
       
-          gcloud run jobs create $JOB_NAME \
+          gcloud run jobs update $JOB_NAME \
             --image $IMAGE_URI \
             --region $REGION \
             --vpc-connector $VPC_CONNECTOR \
             --set-env-vars DB_HOST=10.15.68.5,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin \
-            --set-secrets DB_PASSWORD=$SECRET_DB_PASSWORD:latest \
-            --set-secrets DB_SSL_CERT=$SECRET_SSL_CERT:latest \
-            --set-secrets DB_SSL_KEY=$SECRET_SSL_KEY:latest \
-            --set-secrets DB_SSL_ROOTCERT=$SECRET_SSL_ROOTCERT:latest
+            --set-secrets DB_PASSWORD=pg-admin-user-password:latest \
+            --set-secrets DB_SSL_CERT=pg-client-cert:latest \
+            --set-secrets DB_SSL_KEY=pg-client-private-key:latest \
+            --set-secrets DB_SSL_ROOTCERT=pg-server-ca-cert:latest
+
