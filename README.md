@@ -515,3 +515,91 @@ status:
     completionTimestamp: '2025-08-14T08:57:56.213445Z'
     creationTimestamp: '2025-08-14T08:56:16.862088Z'
     completionStatus: EXECUTION_SUCCEEDED
+--------
+check_db.py
+
+
+import os
+import psycopg2
+import stat
+
+def write_file_from_env(env_var, file_path, perm=0o600):
+    value = os.getenv(env_var)
+    if not value:
+        raise ValueError(f"Missing environment variable: {env_var}")
+    with open(file_path, "w") as f:
+        f.write(value)
+    os.chmod(file_path, perm)
+    print(f"✅ Wrote {env_var} to {file_path}")
+
+def connect_to_db():
+    db_host = os.getenv("DB_HOST")
+    db_port = os.getenv("DB_PORT", "5432")
+    db_name = os.getenv("DB_NAME")
+    db_user = os.getenv("DB_USER")
+    db_password = os.getenv("DB_PASSWORD")
+    ssl_mode = os.getenv("DB_SSLMODE", "verify-ca")
+
+    ssl_cert = "/tmp/client.crt"
+    ssl_key = "/tmp/client.key"
+    ssl_rootcert = "/tmp/server-ca.crt"
+
+    # Write secrets from env vars to files
+    write_file_from_env("DB_SSL_CERT", ssl_cert)
+    write_file_from_env("DB_SSL_KEY", ssl_key)
+    write_file_from_env("DB_SSL_ROOTCERT", ssl_rootcert)
+
+    print(f"🔍 Using SSL mode: {ssl_mode}")
+
+    conn = psycopg2.connect(
+        host=db_host,
+        port=db_port,
+        dbname=db_name,
+        user=db_user,
+        password=db_password,
+        sslmode=ssl_mode,
+        sslcert=ssl_cert,
+        sslkey=ssl_key,
+        sslrootcert=ssl_rootcert
+    )
+    print("✅ Connected successfully!")
+    return conn
+
+def check_user_privileges(conn, check_user):
+    with conn.cursor() as cur:
+        print(f"🔍 Checking privileges for user '{check_user}' on database '{os.getenv('DB_NAME')}'...")
+        # Query privileges granted to the user on tables
+        cur.execute("""
+            SELECT grantee, privilege_type, table_schema, table_name
+            FROM information_schema.role_table_grants
+            WHERE grantee = %s;
+        """, (check_user,))
+        privileges = cur.fetchall()
+        if privileges:
+            for grantee, privilege, schema, table in privileges:
+                print(f" - {grantee} has {privilege} on {schema}.{table}")
+        else:
+            print(f" - No table privileges found for user '{check_user}'.")
+
+if __name__ == "__main__":
+    connection = None
+    try:
+        connection = connect_to_db()
+        check_user_privileges(connection, "appuser")  # Specify the user to check
+    except Exception as e:
+        print(f"❌ Failed: {e}")
+    finally:
+        if connection:
+            connection.close()
+  ------
+
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY check_db.py . 
+
+# Install dependencies
+RUN pip install psycopg2-binary
+
+CMD ["python", "check_db.py"]
+  
