@@ -38,5 +38,5 @@ jobs:
             --image $IMAGE_URI \
             --region $REGION \
             --vpc-connector $VPC_CONNECTOR \
-            --set-env-vars DB_HOST=34.172.144.61,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin \
+            --set-env-vars DB_HOST=10.15.68.5,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin \
             --set-secrets DB_PASSWORD=$SECRET_NAME:latest
