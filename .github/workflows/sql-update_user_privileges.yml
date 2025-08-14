@@ -39,13 +39,20 @@ jobs:
           SECRET_SSL_KEY=pg-client-private-key
           SECRET_SSL_ROOTCERT=pg-server-ca-cert
       
+          # Clear the wrongly set environment variables
           gcloud run jobs update $JOB_NAME \
-            --image $IMAGE_URI \
             --region $REGION \
+            --clear-env-vars DB_SSL_CERT,DB_SSL_KEY,DB_SSL_ROOTCERT
+          
+          # Now set them correctly as secrets (mounted as files)
+          gcloud run jobs update $JOB_NAME \
+            --region $REGION \
+            --image $IMAGE_URI \
             --vpc-connector $VPC_CONNECTOR \
             --set-env-vars DB_HOST=10.15.68.5,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin \
             --set-secrets DB_PASSWORD=pg-admin-user-password:latest \
             --set-secrets DB_SSL_CERT=pg-client-cert:latest \
             --set-secrets DB_SSL_KEY=pg-client-private-key:latest \
             --set-secrets DB_SSL_ROOTCERT=pg-server-ca-cert:latest
+
 
