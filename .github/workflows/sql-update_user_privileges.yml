@@ -25,44 +25,16 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: apigee-test-0002-demo
-
-      - name: Configure Docker for GCR
-        run: gcloud auth configure-docker
-
-      - name: Build and Push Image to GCR
-        run: |
-          gcloud builds submit \
-            --tag gcr.io/apigee-test-0002-demo/sql-update-user-privileges
-
       - name: Deploy Cloud Run Job
         run: |
-          JOB_NAME=sql-update-user-privileges-job
-          IMAGE_URI=gcr.io/apigee-test-0002-demo/sql-update-user-privileges
-          REGION=us-central1
           PROJECT=apigee-test-0002-demo
-          SERVICE_ACCOUNT=741169614600-compute@developer.gserviceaccount.com
+          JOB_NAME=sql-connectivity-check-job
+          IMAGE_URI=gcr.io/$PROJECT/sql-connectivity-check
+          REGION=us-central1
           VPC_CONNECTOR=projects/$PROJECT/locations/$REGION/connectors/cloud-run-vpc-connector
-
-          gcloud run jobs deploy $JOB_NAME \
-            --project $PROJECT \
+      
+          gcloud run jobs create $JOB_NAME \
             --image $IMAGE_URI \
             --region $REGION \
-            --service-account $SERVICE_ACCOUNT \
-            --execution-environment gen2 \
             --vpc-connector $VPC_CONNECTOR \
-            --set-env-vars GOOGLE_CLOUD_PROJECT=$PROJECT \
-            --command "python" \
-            --args "main.py" \
-            --add-volume name=client-cert,type=secret,secret=pg-client-cert \
-            --add-volume name=client-key,type=secret,secret=pg-client-private-key \
-            --add-volume name=server-ca,type=secret,secret=pg-server-ca-cert \
-            --add-volume name=communication-csv-db,type=secret,secret=communication_csv_db \
-            --add-volume-mount volume=client-cert,mount-path=/secrets/client-cert \
-            --add-volume-mount volume=client-key,mount-path=/secrets/client-key \
-            --add-volume-mount volume=server-ca,mount-path=/secrets/server-ca \
-            --add-volume-mount volume=communication-csv-db,mount-path=/secrets/communication_csv_db
-            
-      - name: Execute Cloud Run Job
-        run: |
-          gcloud run jobs execute sql-update-user-privileges-job \
-            --region us-central1
+            --set-env-vars DB_HOST=34.172.144.61,DB_PORT=5432,DB_NAME=pg-instance,DB_USER=pgadmin,DB_PASSWORD='Dczf*1SqucNMO1nn'
