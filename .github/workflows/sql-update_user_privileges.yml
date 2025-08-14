@@ -29,7 +29,7 @@ jobs:
       - name: Deploy Cloud Run Job
         run: |
           PROJECT=apigee-test-0002-demo
-          JOB_NAME=sql-connectivity-checks-job
+          JOB_NAME=sql-connectivity-check-job
           IMAGE_URI=gcr.io/$PROJECT/sql-connectivity-check
           REGION=us-central1
           VPC_CONNECTOR=projects/$PROJECT/locations/$REGION/connectors/cloud-run-vpc-connector
