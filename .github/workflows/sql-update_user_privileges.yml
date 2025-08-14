@@ -1,4 +1,4 @@
-name: Build and Run Cloud Run Job
+name: Run Cloud Run Job
 
 on:
   workflow_dispatch:
