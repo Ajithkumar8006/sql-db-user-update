@@ -426,3 +426,92 @@ Edit
 SELECT grantee, privilege_type, table_schema, table_name
 FROM information_schema.role_table_grants
 WHERE grantee = 'appuser';
+-------
+
+
+apiVersion: run.googleapis.com/v1
+kind: Job
+metadata:
+  name: sql-connectivity-checks-job
+  namespace: '741169614600'
+  selfLink: /apis/run.googleapis.com/v1/namespaces/741169614600/jobs/sql-connectivity-checks-job
+  uid: 6194b27c-0660-4766-8ffb-7175c8322b66
+  resourceVersion: AAY8T3g3a64
+  generation: 1
+  creationTimestamp: '2025-08-14T08:27:41.339213Z'
+  labels:
+    cloud.googleapis.com/location: us-central1
+    run.googleapis.com/lastUpdatedTime: '2025-08-14T08:27:41.339213Z'
+  annotations:
+    run.googleapis.com/client-name: gcloud
+    run.googleapis.com/client-version: 534.0.0
+    run.googleapis.com/creator: master@apigee-test-0002-demo.iam.gserviceaccount.com
+    run.googleapis.com/lastModifier: master@apigee-test-0002-demo.iam.gserviceaccount.com
+    run.googleapis.com/operation-id: 1377a8c7-4ce0-4574-99cd-b1b12142bc0a
+spec:
+  template:
+    metadata:
+      labels:
+        client.knative.dev/nonce: gug_wol_seh
+      annotations:
+        run.googleapis.com/client-name: gcloud
+        run.googleapis.com/client-version: 534.0.0
+        run.googleapis.com/vpc-access-egress: private-ranges-only
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/vpc-access-connector: projects/apigee-test-0002-demo/locations/us-central1/connectors/cloud-run-vpc-connector
+    spec:
+      taskCount: 1
+      template:
+        spec:
+          containers:
+          - image: gcr.io/apigee-test-0002-demo/sql-connectivity-check
+            env:
+            - name: DB_HOST
+              value: 10.15.68.5
+            - name: DB_PORT
+              value: '5432'
+            - name: DB_NAME
+              value: testdb
+            - name: DB_USER
+              value: pgadmin
+            - name: DB_SSLMODE
+              value: verify-ca
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: latest
+                  name: pg-admin-user-password
+            - name: DB_SSL_CERT
+              valueFrom:
+                secretKeyRef:
+                  key: latest
+                  name: pg-client-cert
+            - name: DB_SSL_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: latest
+                  name: pg-client-private-key
+            - name: DB_SSL_ROOTCERT
+              valueFrom:
+                secretKeyRef:
+                  key: latest
+                  name: pg-server-ca-cert
+            resources:
+              limits:
+                memory: 512Mi
+                cpu: 1000m
+          maxRetries: 3
+          timeoutSeconds: '600'
+          serviceAccountName: 741169614600-compute@developer.gserviceaccount.com
+status:
+  observedGeneration: 1
+  conditions:
+  - type: Ready
+    status: 'True'
+    lastTransitionTime: '2025-08-14T08:27:41.743898Z'
+  executionCount: 5
+  latestCreatedExecution:
+    name: sql-connectivity-checks-job-8gf76
+    completionTimestamp: '2025-08-14T08:57:56.213445Z'
+    creationTimestamp: '2025-08-14T08:56:16.862088Z'
+    completionStatus: EXECUTION_SUCCEEDED
