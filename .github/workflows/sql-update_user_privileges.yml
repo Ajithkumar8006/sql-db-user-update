@@ -32,9 +32,11 @@ jobs:
           IMAGE_URI=gcr.io/$PROJECT/sql-connectivity-check
           REGION=us-central1
           VPC_CONNECTOR=projects/$PROJECT/locations/$REGION/connectors/cloud-run-vpc-connector
+          SECRET_NAME=pg-admin-user-password
       
           gcloud run jobs create $JOB_NAME \
             --image $IMAGE_URI \
             --region $REGION \
             --vpc-connector $VPC_CONNECTOR \
-            --set-env-vars DB_HOST=34.172.144.61,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin,DB_PASSWORD='Dczf*1SqucNMO1nn'
+            --set-env-vars DB_HOST=34.172.144.61,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin \
+            --set-secrets DB_PASSWORD=$SECRET_NAME:latest
