@@ -33,7 +33,7 @@ jobs:
           IMAGE_URI=gcr.io/$PROJECT/sql-connectivity-check
           REGION=us-central1
           VPC_CONNECTOR=projects/$PROJECT/locations/$REGION/connectors/cloud-run-vpc-connector
-          DB_HOST=1-c5e92885-0875-4f47-9cce-448c2d167d50.us-central1.sql.goog
+          DB_HOST=10.15.68.5
       
           # Delete job if it exists
           if gcloud run jobs describe $JOB_NAME --region $REGION --project $PROJECT >/dev/null 2>&1; then
