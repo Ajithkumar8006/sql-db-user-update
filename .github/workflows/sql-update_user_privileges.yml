@@ -39,4 +39,7 @@ jobs:
             --region $REGION \
             --vpc-connector $VPC_CONNECTOR \
             --set-env-vars DB_HOST=10.15.68.5,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin \
-            --set-secrets DB_PASSWORD=$SECRET_NAME:latest
+            --set-secrets DB_PASSWORD=$SECRET_NAME:latest \
+            --set-secrets DB_SSL_CERT=pg-client-cert:latest \
+            --set-secrets DB_SSL_KEY=pg-client-private-key:latest \
+            --set-secrets DB_SSL_ROOTCERT=pg-server-ca-cert:latest
