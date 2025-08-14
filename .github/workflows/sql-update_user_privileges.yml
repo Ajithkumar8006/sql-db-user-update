@@ -42,7 +42,7 @@ jobs:
           # Clear the wrongly set environment variables
           gcloud run jobs update $JOB_NAME \
             --region $REGION \
-            --clear-env-vars DB_SSL_CERT,DB_SSL_KEY,DB_SSL_ROOTCERT
+            --clear-secrets DB_SSL_CERT,DB_SSL_KEY,DB_SSL_ROOTCERT
           
           # Now set them correctly as secrets (mounted as files)
           gcloud run jobs update $JOB_NAME \
