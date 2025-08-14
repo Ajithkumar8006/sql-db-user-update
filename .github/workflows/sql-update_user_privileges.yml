@@ -29,7 +29,7 @@ jobs:
       - name: Deploy Cloud Run Job
         run: |
           PROJECT=apigee-test-0002-demo
-          JOB_NAME=sql-connectivity-check-job
+          JOB_NAME=sql-connectivity-checks-job
           IMAGE_URI=gcr.io/$PROJECT/sql-connectivity-check
           REGION=us-central1
           VPC_CONNECTOR=projects/$PROJECT/locations/$REGION/connectors/cloud-run-vpc-connector
@@ -40,17 +40,18 @@ jobs:
             gcloud run jobs delete $JOB_NAME --region $REGION --project $PROJECT --quiet
           fi
       
-          # Create new job with secrets mounted as files
+          # Create new job with secrets as environment variables
           gcloud run jobs create $JOB_NAME \
             --image $IMAGE_URI \
             --region $REGION \
             --vpc-connector $VPC_CONNECTOR \
             --set-env-vars DB_HOST=10.15.68.5,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin,DB_SSLMODE=verify-ca \
             --set-secrets DB_PASSWORD=pg-admin-user-password:latest \
-            --mount-secrets /tmp/client.crt=pg-client-cert:latest \
-            --mount-secrets /tmp/client.key=pg-client-private-key:latest \
-            --mount-secrets /tmp/server-ca.crt=pg-server-ca-cert:latest \
+            --set-secrets DB_SSL_CERT=pg-client-cert:latest \
+            --set-secrets DB_SSL_KEY=pg-client-private-key:latest \
+            --set-secrets DB_SSL_ROOTCERT=pg-server-ca-cert:latest \
             --execute-now
+
 
 
 
