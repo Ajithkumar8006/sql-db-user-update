@@ -1,4 +1,4 @@
-name: Build and Run Cloud Run Job
+name: sql db user test
 
 on:
   workflow_dispatch:
