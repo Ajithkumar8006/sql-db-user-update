@@ -33,7 +33,6 @@ jobs:
           IMAGE_URI=gcr.io/$PROJECT/sql-connectivity-check
           REGION=us-central1
           VPC_CONNECTOR=projects/$PROJECT/locations/$REGION/connectors/cloud-run-vpc-connector
-          DB_PRIVATE_IP=10.15.68.5
       
           # Delete job if it exists
           if gcloud run jobs describe $JOB_NAME --region $REGION --project $PROJECT >/dev/null 2>&1; then
@@ -41,12 +40,12 @@ jobs:
             gcloud run jobs delete $JOB_NAME --region $REGION --project $PROJECT --quiet
           fi
       
-          # Create new job with secrets as env vars
+          # Create new job with secrets as env vars and SSL mode set to verify-ca
           gcloud run jobs create $JOB_NAME \
             --image $IMAGE_URI \
             --region $REGION \
             --vpc-connector $VPC_CONNECTOR \
-            --set-env-vars DB_HOST=10.15.68.5,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin,DB_SSLMODE=require \
+            --set-env-vars DB_HOST=10.15.68.5,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin,DB_SSLMODE=verify-ca \
             --set-secrets DB_PASSWORD=pg-admin-user-password:latest \
             --set-secrets DB_SSL_CERT=pg-client-cert:latest \
             --set-secrets DB_SSL_KEY=pg-client-private-key:latest \
