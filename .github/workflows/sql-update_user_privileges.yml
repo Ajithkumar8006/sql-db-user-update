@@ -34,23 +34,30 @@ jobs:
           REGION=us-central1
           VPC_CONNECTOR=projects/$PROJECT/locations/$REGION/connectors/cloud-run-vpc-connector
       
+          # Use Cloud SQL DNS hostname to avoid SSL hostname mismatch
+          DB_HOST=1-c5e92885-0875-4f47-9cce-448c2d167d50.us-central1.sql.goog
+          DB_PORT=5432
+          DB_NAME=testdb
+          DB_USER=pgadmin
+      
           # Delete job if it exists
           if gcloud run jobs describe $JOB_NAME --region $REGION --project $PROJECT >/dev/null 2>&1; then
             echo "🔄 Job $JOB_NAME exists — deleting..."
             gcloud run jobs delete $JOB_NAME --region $REGION --project $PROJECT --quiet
           fi
       
-          # Create new job with secrets as env vars
+          # Create new job with secrets mounted as files
           gcloud run jobs create $JOB_NAME \
             --image $IMAGE_URI \
             --region $REGION \
             --vpc-connector $VPC_CONNECTOR \
-            --set-env-vars DB_HOST=10.15.68.5,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin \
+            --set-env-vars DB_HOST=$DB_HOST,DB_PORT=$DB_PORT,DB_NAME=$DB_NAME,DB_USER=$DB_USER \
             --set-secrets DB_PASSWORD=pg-admin-user-password:latest \
-            --set-secrets DB_SSL_CERT=pg-client-cert:latest \
-            --set-secrets DB_SSL_KEY=pg-client-private-key:latest \
-            --set-secrets DB_SSL_ROOTCERT=pg-server-ca-cert:latest \
+            --set-secrets DB_SSL_CERT=pg-client-cert:latest:/secrets/client.crt \
+            --set-secrets DB_SSL_KEY=pg-client-private-key:latest:/secrets/client.key \
+            --set-secrets DB_SSL_ROOTCERT=pg-server-ca-cert:latest:/secrets/server-ca.crt \
             --execute-now
+
 
 
 
