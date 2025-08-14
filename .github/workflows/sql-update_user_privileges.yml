@@ -39,7 +39,7 @@ jobs:
           SECRET_SSL_KEY=pg-client-private-key
           SECRET_SSL_ROOTCERT=pg-server-ca-cert
       
-          gcloud run jobs update $JOB_NAME \
+          gcloud run jobs create $JOB_NAME \
             --image $IMAGE_URI \
             --region $REGION \
             --vpc-connector $VPC_CONNECTOR \
