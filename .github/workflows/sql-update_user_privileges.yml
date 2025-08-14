@@ -25,6 +25,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: apigee-test-0002-demo
+
       - name: Deploy Cloud Run Job
         run: |
           PROJECT=apigee-test-0002-demo
@@ -32,14 +33,18 @@ jobs:
           IMAGE_URI=gcr.io/$PROJECT/sql-connectivity-check
           REGION=us-central1
           VPC_CONNECTOR=projects/$PROJECT/locations/$REGION/connectors/cloud-run-vpc-connector
-          SECRET_NAME=pg-admin-user-password
       
-          gcloud run jobs create $JOB_NAME \
+          SECRET_DB_PASSWORD=pg-admin-user-password
+          SECRET_SSL_CERT=pg-client-cert
+          SECRET_SSL_KEY=pg-client-private-key
+          SECRET_SSL_ROOTCERT=pg-server-ca-cert
+      
+          gcloud run jobs update $JOB_NAME \
             --image $IMAGE_URI \
             --region $REGION \
             --vpc-connector $VPC_CONNECTOR \
             --set-env-vars DB_HOST=10.15.68.5,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin \
-            --set-secrets DB_PASSWORD=$SECRET_NAME:latest \
-            --set-secrets DB_SSL_CERT=pg-client-cert:latest \
-            --set-secrets DB_SSL_KEY=pg-client-private-key:latest \
-            --set-secrets DB_SSL_ROOTCERT=pg-server-ca-cert:latest
+            --set-secrets DB_PASSWORD=$SECRET_DB_PASSWORD:latest \
+            --set-secrets DB_SSL_CERT=$SECRET_SSL_CERT:latest \
+            --set-secrets DB_SSL_KEY=$SECRET_SSL_KEY:latest \
+            --set-secrets DB_SSL_ROOTCERT=$SECRET_SSL_ROOTCERT:latest
