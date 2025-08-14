@@ -40,17 +40,18 @@ jobs:
             gcloud run jobs delete $JOB_NAME --region $REGION --project $PROJECT --quiet
           fi
       
-          # Create new job with secrets + env vars
+          # Create new job with secrets as env vars
           gcloud run jobs create $JOB_NAME \
             --image $IMAGE_URI \
             --region $REGION \
             --vpc-connector $VPC_CONNECTOR \
-            --set-env-vars=DB_HOST=10.15.68.5,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin \
-            --set-secrets=DB_PASSWORD=pg-admin-user-password:latest \
-            --set-secrets=DB_SSL_CERT=pg-client-cert:latest:/secrets/client.crt \
-            --set-secrets=DB_SSL_KEY=pg-client-private-key:latest:/secrets/client.key \
-            --set-secrets=DB_SSL_ROOTCERT=pg-server-ca-cert:latest:/secrets/server-ca.crt \
+            --set-env-vars DB_HOST=10.15.68.5,DB_PORT=5432,DB_NAME=testdb,DB_USER=pgadmin \
+            --set-secrets DB_PASSWORD=pg-admin-user-password:latest \
+            --set-secrets DB_SSL_CERT=pg-client-cert:latest \
+            --set-secrets DB_SSL_KEY=pg-client-private-key:latest \
+            --set-secrets DB_SSL_ROOTCERT=pg-server-ca-cert:latest \
             --execute-now
+
 
 
 
