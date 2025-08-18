@@ -602,4 +602,113 @@ COPY check_db.py .
 RUN pip install psycopg2-binary
 
 CMD ["python", "check_db.py"]
-  
+  ------------
+
+import os
+import sys
+import psycopg2
+from collections import defaultdict
+
+# 🔧 Configurable variables
+USERNAME = "appuser"
+DBNAME = "testdb"
+
+def write_file_from_env(env_var, file_path, perm=0o600):
+    value = os.getenv(env_var)
+    if not value:
+        raise ValueError(f"Missing environment variable: {env_var}")
+    with open(file_path, "w") as f:
+        f.write(value)
+    os.chmod(file_path, perm)
+
+def connect_to_db():
+    db_host = os.getenv("DB_HOST")
+    db_port = os.getenv("DB_PORT", "5432")
+    db_user = os.getenv("DB_USER")
+    db_password = os.getenv("DB_PASSWORD")
+    ssl_mode = os.getenv("DB_SSLMODE", "verify-ca")
+
+    ssl_cert = "/tmp/client.crt"
+    ssl_key = "/tmp/client.key"
+    ssl_rootcert = "/tmp/server-ca.crt"
+
+    write_file_from_env("DB_SSL_CERT", ssl_cert)
+    write_file_from_env("DB_SSL_KEY", ssl_key)
+    write_file_from_env("DB_SSL_ROOTCERT", ssl_rootcert)
+
+    print("✅ Client SSL certificate has been verified")
+    print(f"🔍 Using SSL mode: {ssl_mode}")
+
+    conn = psycopg2.connect(
+        host=db_host,
+        port=db_port,
+        dbname=DBNAME,
+        user=db_user,
+        password=db_password,
+        sslmode=ssl_mode,
+        sslcert=ssl_cert,
+        sslkey=ssl_key,
+        sslrootcert=ssl_rootcert
+    )
+    print("✅ Connected successfully to database:", DBNAME)
+    return conn
+
+def run_sql_command(conn, user, sql_command):
+    with conn.cursor() as cur:
+        try:
+            print(f"🚀 Running SQL for user: {user}")
+            cur.execute(sql_command, (user,))
+            if sql_command.strip().lower().startswith("select"):
+                rows = cur.fetchall()
+                if rows:
+                    table_privileges = defaultdict(list)
+                    for privilege, schema, table in rows:
+                        key = f"{schema}.{table}"
+                        table_privileges[key].append(privilege)
+                    for table, privileges in table_privileges.items():
+                        priv_list = ", ".join(sorted(privileges))
+                        print(f" - {user} has {priv_list} on {table}")
+                else:
+                    print(f"ℹ️ No results returned for user: {user}")
+            else:
+                conn.commit()
+                print(f"✅ SQL command executed successfully.")
+        except Exception as e:
+            print(f"❌ SQL Execution Error: {e}")
+            conn.rollback()
+
+if __name__ == "__main__":
+    connection = None
+    try:
+        connection = connect_to_db()
+
+        # ✏️ ONLY EDIT THIS SQL BLOCK
+
+        # check remaining privileges
+        sql1 = f"""
+	    REVOKE UPDATE, SELECT, DELETE ON public.test_table_1 FROM {USERNAME};
+	"""
+        run_sql_command(connection, USERNAME, sql1)
+
+        # check remaining privileges
+        sql2 = """
+            SELECT privilege_type, table_schema, table_name
+            FROM information_schema.role_table_grants
+            WHERE grantee = %s;
+        """
+        run_sql_command(connection, USERNAME, sql2)
+
+        # check remaining privileges
+        sql3 = """
+            SELECT privilege_type, table_schema, table_name
+            FROM information_schema.role_table_grants
+            WHERE grantee = %s;
+        """
+        run_sql_command(connection, USERNAME, sql3)
+
+
+    except Exception as e:
+        print(f"❌ Connection/Error: {e}")
+    finally:
+        if connection:
+            connection.close()
